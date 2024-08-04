@@ -9,18 +9,28 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@alchemy/aa-accounts": "3.14.1",
+    "@alchemy/aa-alchemy": "3.14.1",
+    "@alchemy/aa-core": "3.12.3",
+    "@headlessui/react": "^2.1.2",
+    "@heroicons/react": "^2.1.5",
+    "@tanstack/react-query": "5.28.9",
+    "classnames": "^2.5.1",
+    "next": "14.2.5",
+    "next-themes": "^0.3.0",
     "react": "^18",
     "react-dom": "^18",
-    "next": "14.2.5"
+    "viem": "2.8.6"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
+    "autoprefixer": "^10.4.19",
     "eslint": "^8",
-    "eslint-config-next": "14.2.5"
+    "eslint-config-next": "14.2.5",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.7",
+    "typescript": "^5"
   }
 }
