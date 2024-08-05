@@ -1,5 +1,18 @@
+'use client'
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon ,WifiIcon} from '@heroicons/react/24/outline'
+import {
+  useAccount,
+  useLogout,
+} from "@alchemy/aa-alchemy/react";
+import {
+  chain,
+  accountType,
+  gasManagerConfig,
+  accountClientOptions as opts,
+} from "@/config";
+import { useRouter } from 'next/navigation'
+
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
   }
@@ -14,6 +27,8 @@ const navigation = [
   { name: 'Portals', href: '/portals', current: true },
   { name: 'Tokens', href: '/tokens', current: false },
   { name: 'Donations', href: '/donations', current: false },
+  { name: 'Verification', href: '/verification', current: false },
+
   
 ]
 const userNavigation = [
@@ -23,13 +38,23 @@ const userNavigation = [
 ]
 
 export default function Header({option}) {
-
+  const { address } = useAccount({ type: accountType });
+  const { logout } = useLogout();
+ const router = useRouter();
+const userNavClicked = (item)=>{
+  alert("power")
+  if(item == "Sign out"){
+    logout()
+    router.push("/")
+}  
+  }
+    
 return(<Disclosure as="nav" className="bg-indigo-600">
 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
   <div className="flex h-16 items-center justify-between">
     <div className="flex items-center">
       <div className="flex-shrink-0">
-      <WifiIcon aria-hidden="true" className="h-6 w-6 text-white text-bold" />
+      <WifiIcon aria-hidden="true" className="h-6 w-6 text-[#00FF00] text-bold" />
 
       </div>
       <div className="hidden md:block">
@@ -60,7 +85,7 @@ return(<Disclosure as="nav" className="bg-indigo-600">
         >
           <span className="absolute -inset-1.5" />
           <span className="sr-only">View notifications</span>
-          <BellIcon aria-hidden="true" className="h-6 w-6" />
+          {address}
         </button>
 
         {/* Profile dropdown */}
@@ -78,12 +103,12 @@ return(<Disclosure as="nav" className="bg-indigo-600">
           >
             {userNavigation.map((item) => (
               <MenuItem key={item.name}>
-                <a
-                  href={item.href}
-                  className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
+                <button
+                  onClick={()=>userNavClicked(item.name)}
+                  className="text-left block w-full px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
                 >
                   {item.name}
-                </a>
+                </button>
               </MenuItem>
             ))}
           </MenuItems>
@@ -122,11 +147,12 @@ return(<Disclosure as="nav" className="bg-indigo-600">
   <div className="border-t border-indigo-700 pb-3 pt-4">
     <div className="flex items-center px-5">
       <div className="flex-shrink-0">
-        <img alt="" src={user.imageUrl} className="h-10 w-10 rounded-full" />
+        <img alt="" src={"/images/profile.jpg"} className="h-10 w-10 rounded-full" />
       </div>
       <div className="ml-3">
-        <div className="text-base font-medium text-white">{user.name}</div>
-        <div className="text-sm font-medium text-indigo-300">{user.email}</div>
+        <div className="text-base font-medium text-white">        {address}
+        </div>
+        
       </div>
       <button
         type="button"
@@ -134,19 +160,17 @@ return(<Disclosure as="nav" className="bg-indigo-600">
       >
         <span className="absolute -inset-1.5" />
         <span className="sr-only">View notifications</span>
-        <BellIcon aria-hidden="true" className="h-6 w-6" />
       </button>
     </div>
     <div className="mt-3 space-y-1 px-2">
       {userNavigation.map((item) => (
-        <DisclosureButton
+        <button
           key={item.name}
-          as="a"
-          href={item.href}
-          className="block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-indigo-500 hover:bg-opacity-75"
+          onClick={()=>userNavClicked(item.name)}
+          className="w-full text-left block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-indigo-500 hover:bg-opacity-75"
         >
           {item.name}
-        </DisclosureButton>
+        </button>
       ))}
     </div>
   </div>

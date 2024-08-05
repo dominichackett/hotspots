@@ -1,7 +1,6 @@
 'use client'
 
 import Header from '@/components/dashboard/header'
-import CreatePortal from '@/components/CreatePortal/CreatePortal'
 import { useState } from 'react'
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -114,15 +113,8 @@ const activityItems = [
   },
 ]
 
-export default function Portal() {
-  const [openCreatePortal,setOpenCreatePortal] = useState(false)
-  const createPortal = ()=>{
-    setOpenCreatePortal(false)
-   } 
-
-   const closeCreatePortal = ()=>{
-    setOpenCreatePortal(false)
-   }
+export default function Tokens() {
+    
   return (
     <>
       {/*
@@ -134,20 +126,16 @@ export default function Portal() {
         ```
       */}
       <div className="min-h-full">
-       <Header option={"Portals"}/>
+       <Header option={"Verification"}/>
         <header className="bg-white shadow-sm">
           <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-            <h1 className="text-lg font-semibold leading-6 text-gray-900">Captive Portals</h1>
-            <button onClick={()=>setOpenCreatePortal(true)} type="button" className="mt-4 bg-[#363FF9] text-[#FBFDFF] rounded-lg p-3  transition duration-500 ease-in-out hover:scale-105" >Create Portal</button>
-
+            <h1 className="text-lg font-semibold leading-6 text-gray-900">Portal Verification</h1>
+            
           </div>
         </header>
-        <CreatePortal open={openCreatePortal} setOpen={closeCreatePortal} createPortal={createPortal}/>
         <main>
-          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-
-          <div className="bg-gray-900 py-10">
-      <h2 className="px-4 text-base font-semibold leading-7 text-white sm:px-6 lg:px-8">Captive Portals</h2>
+          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">    <div className="bg-gray-900 py-10">
+      <h2 className="px-4 text-base font-semibold leading-7 text-white sm:px-6 lg:px-8">Portal Verification</h2>
       <table className="mt-6 w-full whitespace-nowrap text-left">
         <colgroup>
           <col className="w-full sm:w-4/12" />
@@ -213,8 +201,7 @@ export default function Portal() {
           ))}
         </tbody>
       </table>
-    </div>
-          </div>
+    </div></div>
         </main>
       </div>
     </>

@@ -4,7 +4,7 @@ import { ProfileCard } from "@/components/profile-card";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import ThemeSwitch from "@/components/ui/theme-switch";
 import { useSignerStatus } from "@alchemy/aa-alchemy/react";
-import { PasskeyCard } from "@/components/signup-passkey";
+import { PasskeyCard } from "@/components/portal-login";
 import { useRouter } from 'next/navigation'
 import { useTheme } from "next-themes";
 import { useState } from "react";
@@ -22,8 +22,7 @@ export default function Home() {
   const isLoading =
     isInitializing || (isAuthenticating && status !== "AWAITING_EMAIL_AUTH");
 const router = useRouter()
-  if (isConnected)
-    router.push("/portals")
+
   setTheme('dark')
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-24">

@@ -1,5 +1,8 @@
-import Header from '@/components/dashboard/header'
+'use client'
 
+import Header from '@/components/dashboard/header'
+import { useState } from 'react'
+import AddToken from '@/components/AddToken/AddToken'
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
@@ -111,7 +114,16 @@ const activityItems = [
   },
 ]
 
-export default function Example() {
+export default function Tokens() {
+    const [openAddToken,setOpenAddToken] = useState(false)
+    const addToken = ()=>{
+      setOpenAddToken(false)
+     } 
+  
+     const closeAddToken = ()=>{
+      setOpenAddToken(false)
+     }
+  
   return (
     <>
       {/*
@@ -127,7 +139,8 @@ export default function Example() {
         <header className="bg-white shadow-sm">
           <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
             <h1 className="text-lg font-semibold leading-6 text-gray-900">Tokens</h1>
-            <button type="button" className="mt-4 bg-[#363FF9] text-[#FBFDFF] rounded-lg p-3  transition duration-500 ease-in-out hover:scale-105" >Add Token</button>
+            <button onClick={()=>setOpenAddToken(true)} type="button" className="mt-4 bg-[#363FF9] text-[#FBFDFF] rounded-lg p-3  transition duration-500 ease-in-out hover:scale-105" >Add Token</button>
+            <AddToken open={openAddToken} setOpen={closeAddToken} createPortal={addToken}/>
 
           </div>
         </header>
