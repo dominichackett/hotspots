@@ -27,6 +27,8 @@ const navigation = [
   { name: 'Portals', href: '/portals', current: true },
   { name: 'Tokens', href: '/tokens', current: false },
   { name: 'Donations', href: '/donations', current: false },
+  { name: 'Subscriptions', href: '/subscriptions', current: false },
+
   { name: 'Verification', href: '/verification', current: false },
 
   
