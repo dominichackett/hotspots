@@ -13,8 +13,9 @@ export default function AddToken(props:any) {
       const  address= document.getElementById("address").value
       const  pricefeedid= document.getElementById("pricefeedid").value
       const  decimals= document.getElementById("decimals").value
+      const  symbol= document.getElementById("symbol").value
 
-      props.addToken(name,address,pricefeedid,decimals)
+      props.addToken(name,symbol,address,pricefeedid,decimals)
   }
   return (
     <Transition.Root show={props.open} as={Fragment}>
@@ -75,6 +76,22 @@ export default function AddToken(props:any) {
                           placeholder="Token name"
                           className="w-full rounded-md border border-stroke bg-[#353444] py-3 px-6 text-base font-medium text-body-color outline-none transition-all focus:bg-[#454457] focus:shadow-input"
                         />
+                         <label
+                          for="symbol"
+                          className="mb-2 block text-base font-medium text-black"
+                        >
+                          Symbol
+                        </label>
+                        <input
+                         
+                          type="text"
+                          name="symbol"
+                          id="symbol"
+                          required
+                          
+                          placeholder="Token Symbol"
+                          className="w-full rounded-md border border-stroke bg-[#353444] py-3 px-6 text-base font-medium text-body-color outline-none transition-all focus:bg-[#454457] focus:shadow-input"
+                        />
 <label
                           for="decimals"
                           className="mb-2 block text-base font-medium text-black"
@@ -126,7 +143,8 @@ export default function AddToken(props:any) {
                           
                           placeholder="Price feed id"
                           className="w-full rounded-md border border-stroke bg-[#353444] py-3 px-6 text-base font-medium text-body-color outline-none transition-all focus:bg-[#454457] focus:shadow-input"
-                        />         
+                        />    
+                                 
                   </div>
                 </div>
                 <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">

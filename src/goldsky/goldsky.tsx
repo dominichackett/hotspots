@@ -1,0 +1,161 @@
+export const getPortals = async(owner:string)=>
+    {  
+         
+     
+
+         const response = await fetch("/api/getportals", {
+            method: "POST",
+            body: JSON.stringify({
+              owner:owner.toLowerCase()
+            }),
+            headers: {
+              "Content-Type": "application/json"
+            }
+          });
+    
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+    
+          const responseData = await response.json();
+         
+        
+         
+     
+    
+     
+      
+     
+         return responseData
+       
+    }
+  
+    
+export const getPortalById = async(portalId:string)=>
+      {  
+           
+       
+  
+           const response = await fetch("/api/getportalbyid", {
+              method: "POST",
+              body: JSON.stringify({
+                portalId:portalId
+              }),
+              headers: {
+                "Content-Type": "application/json"
+              }
+            });
+      
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+      
+            const responseData = await response.json();
+           
+          
+           
+       
+      
+       
+        
+       
+           return responseData
+         
+      }
+
+
+export const getSubscription = async(owner:string,portalId:string)=>
+        {  
+             
+         
+    
+             const response = await fetch("/api/subscription", {
+                method: "POST",
+                body: JSON.stringify({
+                  portalId:portalId,
+                  owner:owner.toLowerCase()
+                }),
+                headers: {
+                  "Content-Type": "application/json"
+                }
+              });
+        
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+        
+              const responseData = await response.json();
+             
+            
+             
+         
+        
+         
+          
+         
+             return responseData
+           
+        }
+
+
+ export const getTokens = async()=>
+          {  
+               
+           
+      
+               const response = await fetch("/api/gettokens", {
+                  method: "POST",
+                  
+                  headers: {
+                    "Content-Type": "application/json"
+                  }
+                });
+          
+                if (!response.ok) {
+                  throw new Error('Network response was not ok');
+                }
+          
+                const responseData = await response.json();
+               
+              
+               
+           
+          
+           
+            
+           
+               return responseData
+             
+          }
+        
+          export const getDonations= async(portalId:string)=>
+            {  
+                 
+             
+        
+                 const response = await fetch("/api/getdonations", {
+                    method: "POST",
+                    body: JSON.stringify({
+                      portalId:portalId
+                    }),
+                    headers: {
+                      "Content-Type": "application/json"
+                    }
+                  });
+            
+                  if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                  }
+            
+                  const responseData = await response.json();
+                 
+                
+                 
+             
+            
+             
+              
+             
+                 return responseData
+               
+            }

@@ -12,6 +12,7 @@
     "@alchemy/aa-accounts": "3.14.1",
     "@alchemy/aa-alchemy": "3.14.1",
     "@alchemy/aa-core": "3.12.3",
+    "@fleekxyz/sdk": "^1.4.2",
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
@@ -36,6 +37,5 @@
     "tailwindcss": "^3.4.7",
     "typescript": "^5",
     "vercel": "^34.2.3"
-
   }
 }

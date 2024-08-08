@@ -21,7 +21,7 @@ export default function CreatePortal(props:any) {
       const fee = document.getElementById("fee").value
       const checkbox = document.getElementById('world-coin-required');
       const isChecked = checkbox.checked;
-      props.createPortal(name,fee,isChecked,selectedFile,filename)
+      props.createPortal(name,fee,isChecked,selectedFile,filename.current)
   }
 
   const PicClicked = (e) => {

@@ -8,10 +8,10 @@ import "@pythnetwork/pyth-sdk-solidity/IPyth.sol";
 
 contract CaptivePortal is Ownable {
 
-  event NewPortal(address indexed owner,uint256 portalId,string name,string logo,uint256 fee);
-  event PortalVerified(uint portalId,bool verified); 
+  event NewPortal(address indexed owner,uint256 portalId,string name,string logo,uint256 fee,bool wcRequired);
+  event PortalVerified(uint portalId,string uid); 
   event ApprovedToken(address contractAddress,bytes32 priceFeedId,string symbol,string name,uint256 decimals);
-  event Subscription(address subscriber,uint256 amount,address token,string symbol,uint256 datepaid,uint256 indexed portalId);
+  event PortalSubscription(address subscriber,uint256 amount,address token,string symbol,uint256 datepaid,uint256 indexed portalId);
   event Donation(address subscriber,uint256 amount,address token,string symbol,uint256 datepaid,uint256 indexed portalId);
 
     struct Token {
@@ -40,7 +40,7 @@ IPyth pyth;
 Portal[] private portals;
 mapping (address => Token) private approvedTokens;
 mapping(uint256 => mapping(address => uint256)) private subscriptions;
-
+address  verifier;
 /**
   * @dev Modifier to check if portal Id exist .
   * @param portalId The portalId.
@@ -63,22 +63,33 @@ modifier isApprovedToken(address tokenId) {
     _;
 }
 
-constructor(address _pyth) Ownable(msg.sender){
+/**
+  * @dev Modifier to check if address is verifier .
+  * @param _verifier The portalId.
+  */
+
+modifier isVerifier(address _verifier) {
+    require(verifier == _verifier,"Unauthorized not the verifier.");
+    _;
+}
+
+constructor(address _pyth,address _verifier) Ownable(msg.sender){
        pyth = IPyth(_pyth);
+       verifier = _verifier;
 
 }
 
 function createPortal(string memory name,string memory logo, bool wcRequired, uint256 fee) public {
    Portal memory newPortal =  Portal({owner:msg.sender,name:name,logo:logo,wcRequired:wcRequired,verified:false,fee:fee,isValue:true});
    portals.push(newPortal);
-   emit NewPortal(msg.sender,portals.length-1,name,logo,fee);
+   emit NewPortal(msg.sender,portals.length-1,name,logo,fee,wcRequired);
   
   
 }
 
-function verifyPortal(uint256 portalId) public portalExist(portalId) onlyOwner{
+function verifyPortal(uint256 portalId,string memory uid) public portalExist(portalId) isVerifier(msg.sender) {
   portals[portalId].verified = true;
-  emit PortalVerified(portalId,true);    
+  emit PortalVerified(portalId,uid);    
  
 }
 
@@ -126,7 +137,7 @@ function paySubscription(uint256 portalId,address token,bytes[] calldata pythPri
       }
 
       subscriptions[portalId][msg.sender] = block.timestamp;
-     emit Subscription(msg.sender,amount, token,approvedTokens[token].symbol,block.timestamp,portalId);
+     emit PortalSubscription(msg.sender,amount, token,approvedTokens[token].symbol,block.timestamp,portalId);
 
 
    
@@ -136,7 +147,7 @@ function paySubscription(uint256 portalId,address token,bytes[] calldata pythPri
     function isSubscriptionActive(uint256 portalId, address user) public portalExist(portalId) view returns (bool) {
         
         uint256 thirtyDaysInSeconds = 30 * 24 * 60 * 60;//Subscription is 30 days
-        return block.timestamp >= (subscriptions[portalId][user] + thirtyDaysInSeconds);   
+        return block.timestamp <= (subscriptions[portalId][user] + thirtyDaysInSeconds);   
      }
 
 
@@ -151,7 +162,7 @@ function paySubscription(uint256 portalId,address token,bytes[] calldata pythPri
       }else //IERC20 Token
       {
 
-          require(IERC20(token).balanceOf(msg.sender)== amount,"Insufficent amount");
+          require(IERC20(token).balanceOf(msg.sender)>= amount,"Insufficent amount");
           IERC20(token).transferFrom(msg.sender,portals[portalId].owner ,amount);
 
          
@@ -162,6 +173,22 @@ function paySubscription(uint256 portalId,address token,bytes[] calldata pythPri
 
    
 }
-    
+
+function getApprovedToken(address token) public view returns(Token memory){
+  return approvedTokens[token];
+}
+
+ function tokenIsApproved(address token) public view returns (bool){
+    return approvedTokens[token].contractAddress != address(0);
+ }   
+
+function setVerifier(address _verifier) public onlyOwner{
+  verifier =_verifier;
+}
+
+
+function getVerifier() public view returns (address){
+  return verifier ;
+}
 
 }

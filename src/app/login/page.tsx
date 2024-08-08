@@ -4,7 +4,7 @@ import { ProfileCard } from "@/components/profile-card";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import ThemeSwitch from "@/components/ui/theme-switch";
 import { useSignerStatus } from "@alchemy/aa-alchemy/react";
-import { PasskeyCard } from "@/components/portal-login";
+import { Portal } from "@/components/portal";
 import { useRouter } from 'next/navigation'
 import { useTheme } from "next-themes";
 import { useState } from "react";
@@ -29,9 +29,9 @@ const router = useRouter()
       {isLoading ? (
         <LoadingSpinner />
       ) : isConnected ? (
-        <ProfileCard />
+        <Portal />
       ) : (
-        <PasskeyCard/>
+        <Portal/>
       )}
       <ThemeSwitch />
     </main>

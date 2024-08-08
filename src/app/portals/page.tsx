@@ -2,11 +2,30 @@
 
 import Header from '@/components/dashboard/header'
 import CreatePortal from '@/components/CreatePortal/CreatePortal'
-import { useState } from 'react'
+import { useState ,useEffect} from 'react'
+import Notification from '@/components/Notification/Notification'
+import { encodeFunctionData } from "viem";
+import { getPortals } from '@/goldsky/goldsky'
+import { uploadToIPFS } from '@/fleek/fleek';
+import { contractABI,contractAddress } from '../../../contracts'
+import {
+  useAccount,
+  useLogout,
+  useSendUserOperation,
+  useSmartAccountClient,
+  useUser,
+} from "@alchemy/aa-alchemy/react";
+import {
+  chain,
+  accountType,
+  gasManagerConfig,
+  accountClientOptions as opts,
+} from "@/config";
+
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
-const statuses = { Completed: 'text-green-400 bg-green-400/10', Error: 'text-rose-400 bg-rose-400/10' }
+const statuses = { true: 'text-green-400 bg-green-400/10', false: 'text-rose-400 bg-rose-400/10' }
 const activityItems = [
   {
     user: {
@@ -115,14 +134,151 @@ const activityItems = [
 ]
 
 export default function Portal() {
+
+  const user = useUser();
+  const { address } = useAccount({ type: accountType });
   const [openCreatePortal,setOpenCreatePortal] = useState(false)
-  const createPortal = ()=>{
+  const [refreshData,setRefreshData] = useState(new Date().getTime())
+  const [portals,setPortals] = useState([])
+   // [!region sending-user-op]
+  // use config values to initialize our smart account client
+  const { client } = useSmartAccountClient({
+    type: accountType,
+    gasManagerConfig,
+    opts,
+  });
+
+  // provide the useSendUserOperation with a client to send a UO
+  // this hook provides us with a status, error, and a result
+  const {
+    sendUserOperation,
+    sendUserOperationResult,
+    isSendingUserOperation,
+    error: isSendUserOperationError,
+  } = useSendUserOperation({ client, waitForTxn: true ,
+    onSuccess: ({ hash, request }) => {
+      // [optional] Do something with the hash and request
+      createSuccess(hash,request);
+    },
+    onError: (error) => {
+      createError(error);
+      // [optional] Do something with the error
+    },});
+
+  // NOTIFICATIONS functions
+  const [notificationTitle, setNotificationTitle] = useState();
+  const [notificationDescription, setNotificationDescription] = useState();
+  const [dialogType, setDialogType] = useState(1);
+  const [show, setShow] = useState(false);
+  const close = async () => {
+setShow(false);
+};
+
+
+const createError= (error:any)=>{
+  setDialogType(2) //Error
+  setNotificationTitle("Create Portal");
+  setNotificationDescription(error?.error?.data?.message ? error?.error?.data?.message: error.message )
+  setShow(true)
+
+}
+
+const createSuccess = (hash:any,request:any)=>{
+  setDialogType(1) //Success
+  setNotificationTitle("Create Portal");
+  setNotificationDescription("Portal created successfully." )
+  setShow(true)
+  console.log(hash)
+  console.log(request)
+  setRefreshData(new Date().getTime())
+
+}
+
+  const createPortal = async(name:string,fee:number,isChecked:boolean,selectedFile:any,filename:string)=>{
+
     setOpenCreatePortal(false)
+    if(!name || name=="")
+     {
+      setDialogType(2) //Error
+      setNotificationTitle("Create Portal");
+      setNotificationDescription("Please enter the portal name.")
+      setShow(true)
+      return
+  
+     }
+
+     if(!fee || fee <0)
+     {
+      setDialogType(2) //Error
+      setNotificationTitle("Create Portal");
+      setNotificationDescription("Please enter zero or greater for the subscription fee.")
+      setShow(true)
+      return
+  
+     } 
+
+     if(!selectedFile || selectedFile==undefined)
+      {
+       setDialogType(2) //Error
+       setNotificationTitle("Create Portal");
+       setNotificationDescription("Please select an image for the portal")
+       setShow(true)
+       return
+   
+      } 
+
+
+    setDialogType(3) //Info
+    setNotificationTitle("Create Portal");
+    setNotificationDescription("Uploading portal image.")
+    setShow(true)
+  try{
+    const result = await  uploadToIPFS(filename,selectedFile)
+    //console.log(await result.json())
+    
+     const cid =result.cid.toV1().toString()
+     const url = `https://${cid}.ipfs.cf-ipfs.com`
+    
+    // setShow(false)
+    setNotificationDescription("Creating portal.")
+    const callData = encodeFunctionData({
+      abi: contractABI,
+      functionName: "createPortal",
+      args: [name,url,isChecked,fee],
+    });
+
+
+    sendUserOperation({
+      uo: {
+        target: contractAddress,
+        data: callData,
+      },
+    });
+
+  }catch(error)
+  {
+     setDialogType(2) //Error
+     setNotificationTitle("Create Portal");
+     setNotificationDescription(error?.error?.data?.message ? error?.error?.data?.message: error.message )
+     setShow(true)
+   return
+  }
+    
    } 
 
    const closeCreatePortal = ()=>{
     setOpenCreatePortal(false)
    }
+
+   useEffect(()=>{
+    async function _getPortals(){
+      const results = await getPortals(address)
+      console.log(results)
+      setPortals(results.data.newPortals)
+    }
+     if(address!=undefined)
+        _getPortals()
+   },[address,refreshData])
   return (
     <>
       {/*
@@ -143,6 +299,14 @@ export default function Portal() {
           </div>
         </header>
         <CreatePortal open={openCreatePortal} setOpen={closeCreatePortal} createPortal={createPortal}/>
+         <Notification
+        type={dialogType}
+        show={show}
+        close={close}
+        title={notificationTitle}
+        description={notificationDescription}
+      />
+
         <main>
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
@@ -159,55 +323,40 @@ export default function Portal() {
         <thead className="border-b border-white/10 text-sm leading-6 text-white">
           <tr>
             <th scope="col" className="py-2 pl-4 pr-8 font-semibold sm:pl-6 lg:pl-8">
-              User
+              Portal
             </th>
             <th scope="col" className="hidden py-2 pl-0 pr-8 font-semibold sm:table-cell">
-              Commit
+              Id
             </th>
             <th scope="col" className="py-2 pl-0 pr-4 text-right font-semibold sm:pr-8 sm:text-left lg:pr-20">
               Status
             </th>
-            <th scope="col" className="hidden py-2 pl-0 pr-8 font-semibold md:table-cell lg:pr-20">
-              Duration
-            </th>
-            <th scope="col" className="hidden py-2 pl-0 pr-4 text-right font-semibold sm:table-cell sm:pr-6 lg:pr-8">
-              Deployed at
-            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-white/5">
-          {activityItems.map((item) => (
-            <tr key={item.commit}>
+          {portals.map((item) => (
+            <tr key={item.id}>
               <td className="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
                 <div className="flex items-center gap-x-4">
-                  <img alt="" src={item.user.imageUrl} className="h-8 w-8 rounded-full bg-gray-800" />
-                  <div className="truncate text-sm font-medium leading-6 text-white">{item.user.name}</div>
+                  <img alt="" src={item.logo} className="h-16 w-16 rounded-full bg-gray-800" />
+                  <div className="truncate text-sm font-medium leading-6 text-white">{item.name}</div>
                 </div>
               </td>
               <td className="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
                 <div className="flex gap-x-3">
-                  <div className="font-mono text-sm leading-6 text-gray-400">{item.commit}</div>
                   <div className="rounded-md bg-gray-700/40 px-2 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-white/10">
-                    {item.branch}
+                    {item.portalId}
                   </div>
                 </div>
               </td>
               <td className="py-4 pl-0 pr-4 text-sm leading-6 sm:pr-8 lg:pr-20">
                 <div className="flex items-center justify-end gap-x-2 sm:justify-start">
-                  <time dateTime={item.dateTime} className="text-gray-400 sm:hidden">
-                    {item.date}
-                  </time>
-                  <div className={classNames(statuses[item.status], 'flex-none rounded-full p-1')}>
+                
+                  <div className={classNames(statuses[true], 'flex-none rounded-full p-1')}>
                     <div className="h-1.5 w-1.5 rounded-full bg-current" />
                   </div>
-                  <div className="hidden text-white sm:block">{item.status}</div>
+                  <div className="hidden text-white sm:block">verified</div>
                 </div>
-              </td>
-              <td className="hidden py-4 pl-0 pr-8 text-sm leading-6 text-gray-400 md:table-cell lg:pr-20">
-                {item.duration}
-              </td>
-              <td className="hidden py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
-                <time dateTime={item.dateTime}>{item.date}</time>
               </td>
             </tr>
           ))}
