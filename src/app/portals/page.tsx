@@ -328,6 +328,9 @@ const createSuccess = (hash:any,request:any)=>{
             <th scope="col" className="hidden py-2 pl-0 pr-8 font-semibold sm:table-cell">
               Id
             </th>
+            <th scope="col" className="hidden py-2 pl-0 pr-8 font-semibold sm:table-cell">
+              Fee
+            </th>
             <th scope="col" className="py-2 pl-0 pr-4 text-right font-semibold sm:pr-8 sm:text-left lg:pr-20">
               Status
             </th>
@@ -346,6 +349,13 @@ const createSuccess = (hash:any,request:any)=>{
                 <div className="flex gap-x-3">
                   <div className="rounded-md bg-gray-700/40 px-2 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-white/10">
                     {item.portalId}
+                  </div>
+                </div>
+              </td>
+              <td className="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
+                <div className="flex gap-x-3">
+                  <div className="rounded-md bg-gray-700/40 px-2 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-white/10">
+                    ${item.fee} usd
                   </div>
                 </div>
               </td>

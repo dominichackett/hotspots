@@ -6,6 +6,7 @@ export async function POST(request: Request) {
  const query =`query MyQuery {
     newPortals(where: {owner: "${owner}"}) {
       id
+      fee
       logo
       name
       owner
