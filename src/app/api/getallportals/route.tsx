@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
-  const {owner } = await request.json();
 
  const query =`query MyQuery {
-    newPortals(where: {owner: "${owner}"}) {
+    newPortals {
       id
       fee
       logo

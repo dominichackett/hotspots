@@ -32,9 +32,9 @@ import { CheckBadgeIcon } from '@heroicons/react/24/solid'
 
 export const Portal = () => {
   
-  const [portalId,setPortalId] = useState("0")
+  const [portalId,setPortalId] = useState("1")
   const [wcVerified,setwcVerified] = useState(false)
-  const [easVerified,setEASVerified] = useState(true)
+  const [easVerified,setEASVerified] = useState(false)
   const [portal,setPortal] = useState() 
   const [action,setAction] = useState()
   const [tokens,setTokens] = useState([])
@@ -178,7 +178,8 @@ const createSuccess = (hash:any,request:any)=>{
 
     if(portalId)
      {    
-        getPortal()
+       getPortal() 
+       getEas()
      }   
    
   },[portalId])
@@ -388,6 +389,11 @@ const createSuccess = (hash:any,request:any)=>{
     console.log("Success")
     setwcVerified(true)
   };
+
+  const signOut = ()=>{
+    logout()
+    setwcVerified(false)
+  }
   
   return (
     <Card>
@@ -415,7 +421,7 @@ const createSuccess = (hash:any,request:any)=>{
            <span className="text-2xl text-center">{portal?.name ? portal.name: "Hotspots"}</span>  
            <span className="text-2xl text-center">Fee: ${portal?.fee ? portal.fee: ""} usd</span>  
            {easVerified &&<div className='flex flex-row space-x-2 items-center justify-center'><span>EAS Verified</span> <span className="text-2xl text-green-500"> <CheckBadgeIcon  className="h-8 w-8 text-blue"/></span></div>}
- { (portal?.portalId && !wcVerified ) &&         <IDKitWidget
+ { (portalId && !wcVerified ) &&         <IDKitWidget
     app_id="app_staging_696c70b863a8fefb5305a02877b7e0f4"
     action="hotspots-ethglobal-login"
     false
@@ -433,7 +439,7 @@ const createSuccess = (hash:any,request:any)=>{
 </IDKitWidget>
 }
            {isConnected && <span className="text-sm text-center">Address: {address}</span>}  
-            {isConnected            &&  <Button type="button" onClick={logout}>Logout</Button>
+            {isConnected            &&  <Button type="button" onClick={signOut}>Logout</Button>
         }  
              {(!isConnected && wcVerified) &&<div className="flex flex-row space-x-2">
              <Button type="button" onClick={login}>Log in</Button>

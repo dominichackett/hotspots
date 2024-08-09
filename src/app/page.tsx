@@ -30,7 +30,7 @@ const router = useRouter()
       {isLoading ? (
         <LoadingSpinner />
       ) : isConnected ? (
-        <ProfileCard />
+        <LoadingSpinner />
       ) : (
         <PasskeyCard/>
       )}

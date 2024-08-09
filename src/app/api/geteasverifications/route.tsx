@@ -1,21 +1,13 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
-  const {owner } = await request.json();
 
  const query =`query MyQuery {
-    newPortals(where: {owner: "${owner}"}) {
-      id
-      fee
-      logo
-      name
-      owner
-      portalId
-      timestamp_
-      transactionHash_
-      wcRequired
-    }
-  }`
+  portalVerifieds {
+    portalId
+    uid
+  }
+}`
 
   try {
     const response = await fetch(process.env.NEXT_PUBLIC_GOLDSKY_ENDPOINT, { method: 'POST',headers: {

@@ -29,7 +29,35 @@ export const getPortals = async(owner:string)=>
          return responseData
        
     }
+    export const getAllPortals = async()=>
+      {  
+           
+       
   
+           const response = await fetch("/api/getallportals", {
+              method: "POST",
+              
+              headers: {
+                "Content-Type": "application/json"
+              }
+            });
+      
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+      
+            const responseData = await response.json();
+           
+          
+           
+       
+      
+       
+        
+       
+           return responseData
+         
+      } 
     
 export const getPortalById = async(portalId:string)=>
       {  
@@ -161,7 +189,7 @@ export const getSubscriptions = async(portalId:string)=>
             }
 
 
-            export const getEasVerified = async(portalId:string)=>
+ export const getEasVerified = async(portalId:string)=>
               {  
                    
                
@@ -194,3 +222,34 @@ export const getSubscriptions = async(portalId:string)=>
                  
               }
               
+
+              export const getEasVerifications= async()=>
+                {  
+                     
+                 
+            
+                     const response = await fetch("/api/geteasverifications", {
+                        method: "POST",
+                        
+                        headers: {
+                          "Content-Type": "application/json"
+                        }
+                      });
+                
+                      if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                      }
+                
+                      const responseData = await response.json();
+                     
+                    
+                     
+                 
+                
+                 
+                  
+                 
+                     return responseData
+                   
+                }
+                            

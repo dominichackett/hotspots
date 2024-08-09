@@ -5,9 +5,11 @@ import CreatePortal from '@/components/CreatePortal/CreatePortal'
 import { useState ,useEffect} from 'react'
 import Notification from '@/components/Notification/Notification'
 import { encodeFunctionData } from "viem";
-import { getPortals } from '@/goldsky/goldsky'
+import { getPortals ,getEasVerifications} from '@/goldsky/goldsky'
 import { uploadToIPFS } from '@/fleek/fleek';
 import { contractABI,contractAddress } from '../../../contracts'
+import { CheckBadgeIcon } from '@heroicons/react/24/solid'
+
 import {
   useAccount,
   useLogout,
@@ -136,6 +138,9 @@ const activityItems = [
 export default function Portal() {
 
   const user = useUser();
+  const [verifications,setVerifications] = useState(new Map())
+  const[gotVerifications,setGotVerifications] = useState(false)
+  
   const { address } = useAccount({ type: accountType });
   const [openCreatePortal,setOpenCreatePortal] = useState(false)
   const [refreshData,setRefreshData] = useState(new Date().getTime())
@@ -278,7 +283,35 @@ const createSuccess = (hash:any,request:any)=>{
     }
      if(address!=undefined)
         _getPortals()
-   },[address,refreshData])
+   },[address,gotVerifications,refreshData])
+
+   useEffect(()=>{
+    async function _getVerifications(){
+      const results = await getEasVerifications()
+      console.log(results)
+      
+      let _verifications = new Map()
+      for(const index in results.data.portalVerifieds)
+      {
+         
+        _verifications.set(results.data.portalVerifieds[index].portalId ,results.data.portalVerifieds[index].uid)   
+      }
+      
+      setGotVerifications(true)
+      setVerifications(_verifications)
+  
+    }
+     
+        _getVerifications()
+    },[refreshData])  
+    const getStatus = (id:any)=>{
+      const item = verifications.get(id)
+      if(item)
+        return true
+      else
+        return false
+  }
+
   return (
     <>
       {/*
@@ -334,6 +367,10 @@ const createSuccess = (hash:any,request:any)=>{
             <th scope="col" className="py-2 pl-0 pr-4 text-right font-semibold sm:pr-8 sm:text-left lg:pr-20">
               Status
             </th>
+            <th scope="col" className="text-center py-2 pl-0 pr-4 text-center font-semibold sm:pr-8 sm:text-left lg:pr-20">
+              World ID Required
+            </th>
+
           </tr>
         </thead>
         <tbody className="divide-y divide-white/5">
@@ -362,12 +399,23 @@ const createSuccess = (hash:any,request:any)=>{
               <td className="py-4 pl-0 pr-4 text-sm leading-6 sm:pr-8 lg:pr-20">
                 <div className="flex items-center justify-end gap-x-2 sm:justify-start">
                 
-                  <div className={classNames(statuses[true], 'flex-none rounded-full p-1')}>
-                    <div className="h-1.5 w-1.5 rounded-full bg-current" />
-                  </div>
-                  <div className="hidden text-white sm:block">verified</div>
+                <div className="flex items-center justify-end gap-x-2 sm:justify-start">
+              
+                
+              {getStatus(item.portalId) ? <div className='flex flex-row space-x-2 items-center justify-center'><span>EAS Verified</span> <span className="text-2xl text-green-500"> <CheckBadgeIcon  className="h-8 w-8 text-blue"/></span>
+                 </div> :(<span>Unverified</span>)}
+
+              </div>
                 </div>
               </td>
+              <td className=" hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
+              <div className="flex justify-center gap-x-3">
+                <div className="rounded-md bg-gray-700/40 px-2 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-white/10">
+                  {item.wcRequired ? "Yes":"No"}
+                </div>
+              </div>
+            </td>
+
             </tr>
           ))}
         </tbody>

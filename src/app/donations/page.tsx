@@ -243,7 +243,7 @@ export default function Donations() {
               Amount
             </th>
            
-            <th scope="col" className="hidden py-2 pl-0 pr-4 text-right font-semibold sm:table-cell sm:pr-6 lg:pr-8">
+            <th scope="col" className="hidden py-2 pl-0 pr-4  font-semibold sm:table-cell sm:pr-6 lg:pr-8">
               Donated at
             </th>
           </tr>
@@ -264,7 +264,7 @@ export default function Donations() {
                   
                 </div>
               </td>
-              <td className="hidden py-4 pl-0 pr-8 text-sm leading-6 text-gray-400 md:table-cell lg:pr-20">
+              <td className="text-right hidden py-4 pl-0 pr-8 text-sm leading-6 text-gray-400 md:table-cell lg:pr-20">
                 { Date(parseInt(item.datepaid) * 1000).toLocaleString()
                 }
               </td>
