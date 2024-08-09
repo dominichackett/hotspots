@@ -64,16 +64,16 @@ export const getPortalById = async(portalId:string)=>
       }
 
 
-export const getSubscription = async(owner:string,portalId:string)=>
+export const getSubscriptions = async(portalId:string)=>
         {  
              
          
     
-             const response = await fetch("/api/subscription", {
+             const response = await fetch("/api/getsubscriptions", {
                 method: "POST",
                 body: JSON.stringify({
-                  portalId:portalId,
-                  owner:owner.toLowerCase()
+                  portalId:portalId
+                  
                 }),
                 headers: {
                   "Content-Type": "application/json"
@@ -159,3 +159,38 @@ export const getSubscription = async(owner:string,portalId:string)=>
                  return responseData
                
             }
+
+
+            export const getEasVerified = async(portalId:string)=>
+              {  
+                   
+               
+          
+                   const response = await fetch("/api/geteasverified", {
+                      method: "POST",
+                      body: JSON.stringify({
+                        portalId:portalId
+                        
+                      }),
+                      headers: {
+                        "Content-Type": "application/json"
+                      }
+                    });
+              
+                    if (!response.ok) {
+                      throw new Error('Network response was not ok');
+                    }
+              
+                    const responseData = await response.json();
+                   
+                  
+                   
+               
+              
+               
+                
+               
+                   return responseData
+                 
+              }
+              

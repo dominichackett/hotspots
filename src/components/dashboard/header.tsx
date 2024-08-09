@@ -44,7 +44,6 @@ export default function Header({option}) {
   const { logout } = useLogout();
  const router = useRouter();
 const userNavClicked = (item)=>{
-  alert("power")
   if(item == "Sign out"){
     logout()
     router.push("/")

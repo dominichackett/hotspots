@@ -1,4 +1,4 @@
-export const contractAddress = '0x486e7D935aF742f30C92F7D7077e3cC17f21BdFb'
+export const contractAddress = '0x1c25e28918F39dFD80F47444b031a5348323F85f'
 export const contractABI = [
 	{
 		"inputs": [
@@ -66,6 +66,11 @@ export const contractABI = [
 			{
 				"internalType": "address",
 				"name": "_pyth",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_verifier",
 				"type": "address"
 			}
 		],
@@ -229,6 +234,12 @@ export const contractABI = [
 				"internalType": "uint256",
 				"name": "fee",
 				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "wcRequired",
+				"type": "bool"
 			}
 		],
 		"name": "NewPortal",
@@ -330,9 +341,9 @@ export const contractABI = [
 			},
 			{
 				"indexed": false,
-				"internalType": "bool",
-				"name": "verified",
-				"type": "bool"
+				"internalType": "string",
+				"name": "uid",
+				"type": "string"
 			}
 		],
 		"name": "PortalVerified",
@@ -341,6 +352,19 @@ export const contractABI = [
 	{
 		"inputs": [],
 		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_verifier",
+				"type": "address"
+			}
+		],
+		"name": "setVerifier",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -364,6 +388,11 @@ export const contractABI = [
 				"internalType": "uint256",
 				"name": "portalId",
 				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "uid",
+				"type": "string"
 			}
 		],
 		"name": "verifyPortal",
@@ -468,6 +497,19 @@ export const contractABI = [
 				"internalType": "struct CaptivePortal.Portal",
 				"name": "",
 				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getVerifier",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
 			}
 		],
 		"stateMutability": "view",

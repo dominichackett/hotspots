@@ -4,18 +4,15 @@ export async function POST(request: Request) {
   const {portalId } = await request.json();
 
  const query =`query MyQuery {
-    newPortals(where: {portalId: "${portalId}"}) {
-      id
-      logo
-      name
-      fee
-      owner
-      portalId
-      timestamp_
-      transactionHash_
-      wcRequired
-    }
-  }`
+  portalSubscriptions(orderDirection: desc, where: {portalId: "${portalId}"}) {
+    datepaid
+    portalId
+    subscriber
+    amount
+    token
+    symbol
+  }
+}`
 
   try {
     const response = await fetch(process.env.NEXT_PUBLIC_GOLDSKY_ENDPOINT, { method: 'POST',headers: {

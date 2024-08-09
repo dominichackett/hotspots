@@ -114,6 +114,7 @@ function calculateTokenAmount(uint256 portalId,address token,bytes[] calldata py
      uint256  decimals = approvedTokens[token].decimals;
 
     uint256 _price = (uint(uint64(price.price)) * (10 ** decimals)) /(10 ** uint8(uint32(-1 * price.expo)));
+   
     uint oneDollarInWei = ((10 ** decimals) * (10 ** decimals)) / _price;
     uint256 amount = oneDollarInWei*portals[portalId].fee;
    return amount;
@@ -123,14 +124,14 @@ function paySubscription(uint256 portalId,address token,bytes[] calldata pythPri
      uint256 amount = calculateTokenAmount(portalId,token,pythPriceUpdate);
       if(token== address(0)) //Native token
       {
-          require(msg.value == amount,"Insufficent amount");
+          require(msg.value >= amount,"Insufficent amount");
           (bool success, ) = payable(portals[portalId].owner).call{value: amount}("");
           require(success, "Transfer failed");
 
       }else //IERC20 Token
       {
 
-          require(IERC20(token).balanceOf(msg.sender)== amount,"Insufficent amount");
+          require(IERC20(token).balanceOf(msg.sender)>= amount,"Insufficent amount");
           IERC20(token).transferFrom(msg.sender,portals[portalId].owner ,amount);
 
 

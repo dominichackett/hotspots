@@ -1,16 +1,19 @@
 "use client";
-
+import {EvmPriceServiceConnection} from '@pythnetwork/pyth-evm-js'
 import { useAuthenticate, useSignerStatus } from "@alchemy/aa-alchemy/react";
 import { FormEvent, useCallback, useState,useEffect } from "react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Input } from "./ui/input";
 import Image from 'next/image'
-import { getPortalById ,getTokens} from "@/goldsky/goldsky";
-
+import { getPortalById ,getTokens,getEasVerified} from "@/goldsky/goldsky";
+import {PriceServiceConnection} from '@pythnetwork/price-service-client'
 import Notification from '@/components/Notification/Notification'
 import { encodeFunctionData } from "viem";
 import { contractABI,contractAddress,tokenABI } from '../../contracts'
+import { formatUnits } from "viem";
+import { IDKitWidget, VerificationLevel } from '@worldcoin/idkit'
+
 import {
   useAccount,
   useLogout,
@@ -25,10 +28,13 @@ import {
   accountClientOptions as opts,
 } from "@/config";
 import { parseUnits } from "viem";
-const _tokens =[{contractAddress:"0x0000000000000000000000000000000000000000",name:"ETH",pricefeedid:"0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace"}]
+import { CheckBadgeIcon } from '@heroicons/react/24/solid'
+
 export const Portal = () => {
   
   const [portalId,setPortalId] = useState("0")
+  const [wcVerified,setwcVerified] = useState(false)
+  const [easVerified,setEASVerified] = useState(true)
   const [portal,setPortal] = useState() 
   const [action,setAction] = useState()
   const [tokens,setTokens] = useState([])
@@ -152,11 +158,28 @@ const createSuccess = (hash:any,request:any)=>{
        const results = await getPortalById(portalId) 
        console.log(results)
        if(results.data.newPortals.length >=1)
+        {
           setPortal(results.data.newPortals[0])
+          if(results.data.newPortals[0].wcRequired==false)
+            setwcVerified(true)
+        }  
     }
 
+    async function getEas(){
+      const results = await getEasVerified(portalId) 
+      console.log(results)
+      if(results.data.portalVerifieds.length >=1)
+       {
+
+          setEASVerified(true)
+       }  
+   }
+
+
     if(portalId)
-         getPortal()
+     {    
+        getPortal()
+     }   
    
   },[portalId])
   const donate = async()=>{
@@ -202,7 +225,8 @@ const createSuccess = (hash:any,request:any)=>{
                   value: parseUnits(amount,18)
                 },
               });
-         }   else{
+         }   
+         else{
 
             setAction(1)
             setDialogType(3) //Information
@@ -238,14 +262,136 @@ const createSuccess = (hash:any,request:any)=>{
   }
 
   const connect = async()=>{
+   
     if(portal.fee == 0)
      {
         alert("Connect");
         return
+     }else{
+        const token = document.getElementById("tokens").value
+        const amount = document.getElementById("amount").value
+        if(!token || token==-1)
+         {
+            setDialogType(2) //Error
+            setNotificationTitle("Subscription");
+            setNotificationDescription("Token not selected." )
+            setShow(true)
+          return
+         }  
+
+         
+         
+            const connection = new PriceServiceConnection("https://hermes.pyth.network", {priceFeedRequestConfig: {
+                // Provide this option to retrieve binary price updates for on-chain contracts.
+                // Ignore this option for off-chain use.
+                binary: true,
+              }});
+            //const updateData = await connection.getLatestVaas([tokens[token].priceFeedId])
+            const pricefeed = await connection.getLatestPriceFeeds([tokens[token].priceFeedId])
+            //console.log(pricefeed)
+            const updateData = new Uint8Array(Buffer.from([pricefeed[0].vaa],"base64")) 
+           // console.log(pricefeed)
+           // console.log(new Uint8Array(Buffer.from(updateData,"base64")))
+             const price = formatUnits(pricefeed[0].price.price,8)
+            const cost =portal.fee/price
+            //console.log(cost)
+            const costInWEI = parseUnits(cost.toString(),tokens[token].decimals) 
+            console.log(costInWEI)
+             console.log(parseUnits(cost.toString(),tokens[token].decimals))
+           // console.log(updateData)
+            const encoder = new TextEncoder()
+            const x = encoder.encode(pricefeed[0].vaa)
+           // console.log(x)
+            const y = Array.from(x, byte => byte.toString(16).padStart(2, '0')).join('');
+           // console.log(y)
+
+            const xconnection = new EvmPriceServiceConnection("https://hermes.pyth.network");
+            const priceUpdateData = await xconnection.getPriceFeedsUpdateData([tokens[token].priceFeedId]);
+            console.log(priceUpdateData)
+             
+            if(tokens[token].contractAddress=="0x0000000000000000000000000000000000000000")
+                {
+                   setAction(3)
+                   setDialogType(3) //Information
+               setNotificationTitle("Subscription");
+               setNotificationDescription("Subscribing to WIFI service." )
+               setShow(true)
+                   const callData = encodeFunctionData({
+                       abi: contractABI,
+                       functionName: "paySubscription",
+                       args: [portal.portalId,tokens[token].contractAddress,priceUpdateData],
+                     });
+                 console.log(callData)
+                   sendUserOperation({
+                       uo: {
+                         target: contractAddress,
+                         data: callData,
+                         value: costInWEI
+                       },
+                     });
+                }   else{
+
+                  setAction(3)
+                  setDialogType(3) //Information
+              setNotificationTitle("Subscription");
+              setNotificationDescription("Subscribing to WIFI service." )
+              setShow(true)
+                
+
+                  const approveCallData = encodeFunctionData({
+                    abi: tokenABI,
+                    functionName: "approve",
+                    args: [contractAddress,costInWEI],
+                  });
+
+                  const callData = encodeFunctionData({
+                    abi: contractABI,
+                    functionName: "paySubscription",
+                    args: [portal.portalId,tokens[token].contractAddress,priceUpdateData],
+                  });
+                
+                  sendUserOperation({
+                    uo: [{
+                      target: tokens[token].contractAddress,
+                      data: approveCallData,
+                    },{
+                        target: contractAddress,
+                        data: callData,
+                       
+                      }],
+                  });
+    
+                
+                }
+                
+    
      }   
   }
+
+  const verifyProof = async (proof) => {
+    const response = await fetch("/api/worldid", {
+      method: "POST",
+      body: JSON.stringify({
+        proof
+        
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    if(!response.ok)
+    throw new Error("Error Verifying World Id")
+  };
+  
+  // TODO: Functionality after verifying
+  const onSuccess = () => {
+    console.log("Success")
+    setwcVerified(true)
+  };
+  
   return (
     <Card>
+
    <Notification
         type={dialogType}
         show={show}
@@ -265,12 +411,31 @@ const createSuccess = (hash:any,request:any)=>{
 
     /> 
              </div>
+             
            <span className="text-2xl text-center">{portal?.name ? portal.name: "Hotspots"}</span>  
            <span className="text-2xl text-center">Fee: ${portal?.fee ? portal.fee: ""} usd</span>  
+           {easVerified &&<div className='flex flex-row space-x-2 items-center justify-center'><span>EAS Verified</span> <span className="text-2xl text-green-500"> <CheckBadgeIcon  className="h-8 w-8 text-blue"/></span></div>}
+ { (portal?.portalId && !wcVerified ) &&         <IDKitWidget
+    app_id="app_staging_696c70b863a8fefb5305a02877b7e0f4"
+    action="hotspots-ethglobal-login"
+    false
+    verification_level={VerificationLevel.Device}
+    handleVerify={verifyProof}
+    onSuccess={onSuccess}>
+    {({ open }) => (
+      <Button
+      type="Button"
+        onClick={open}
+      >
+        Verify with World ID
+      </Button>
+    )}
+</IDKitWidget>
+}
            {isConnected && <span className="text-sm text-center">Address: {address}</span>}  
             {isConnected            &&  <Button type="button" onClick={logout}>Logout</Button>
         }  
-             {!isConnected &&<div className="flex flex-row space-x-2">
+             {(!isConnected && wcVerified) &&<div className="flex flex-row space-x-2">
              <Button type="button" onClick={login}>Log in</Button>
              <Button type="button" onClick={signup}>Sign Up</Button>
              </div>}

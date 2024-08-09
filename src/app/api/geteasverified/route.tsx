@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
-  const {portalId,subscriber } = await request.json();
+  const {portalId } = await request.json();
 
  const query =`query MyQuery {
-  portalSubscriptions(orderDirection: desc, where: {subscriber:"${subscriber}", portalId: "${portalId}"}) {
-    datepaid
+  portalVerifieds(where: {portalId: "${portalId}"}) {
     portalId
-    subscriber
+    uid
   }
 }`
 
