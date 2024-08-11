@@ -30,7 +30,7 @@ import {
 import { parseUnits } from "viem";
 import { CheckBadgeIcon } from '@heroicons/react/24/solid'
 
-export const Portal = () => {
+export const Portal = (props:any) => {
   
   const [portalId,setPortalId] = useState("1")
   const [wcVerified,setwcVerified] = useState(false)
@@ -50,6 +50,8 @@ export const Portal = () => {
       )
     }
         _getTokens()
+        console.log(props)
+        setPortalId(props.portalId)
    },[])
   const { isInitializing, isAuthenticating, isConnected, status } =
     useSignerStatus();

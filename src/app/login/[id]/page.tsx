@@ -10,7 +10,7 @@ import { useTheme } from "next-themes";
 import { useState } from "react";
 
 // [!region using-status]
-export default function Home() {
+export default function Home({params}) {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
   // use the various signer statuses to determine if we are:
@@ -29,9 +29,9 @@ const router = useRouter()
       {isLoading ? (
         <LoadingSpinner />
       ) : isConnected ? (
-        <Portal />
+        <Portal portalId={params.id}/>
       ) : (
-        <Portal/>
+        <Portal portalId={params.id}/>
       )}
       <ThemeSwitch />
     </main>
